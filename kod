@@ -1,0 +1,102 @@
+import speech_recognition as sr
+import requests
+from pprint import pprint
+import time
+from datetime import datetime
+import webbrowser
+import gtts
+from gtts import gTTS
+from playsound import playsound
+import random
+import os
+r=sr.Recognizer()
+
+def record(ask=False):
+    with sr.Microphone() as source:
+        if ask:
+            speak(ask)
+        audio = r.listen(source)
+        voice_ = ""
+        try:
+            voice = r.recognize_google(audio, language="tr-TR")
+
+        except sr.UnknownValueError:
+            speak("Anlayamadim")
+        except sr.RequestError:
+            speak("Sistem Calismiyor")
+
+        except UnboundLocalError:
+            pass
+
+        except TypeError:
+            pass
+        return voice
+
+
+def response(voice):
+    if "nasılsın" in voice:
+        speak("iyi sen")
+
+    elif "iyi" in voice or "bende iyim" in voice or "bende iyi" in voice:
+        speak("Güzel")
+
+
+    elif "saat kaç" in voice:
+        speak("Saat:"+datetime.now().strftime("%H:%M:%S"))
+
+    elif "arama yap" in voice:
+        search = record("ne aramak istiyorsun?")
+        url="https://google.com/search?q="+search
+        webbrowser.get().open(url)
+        speak(search+"icin bulduklarim:")
+    elif "taş kağıt makas" in voice:
+        bs = random.choice(['tas', 'kagit', 'makas'])
+        secim=record("Seciminizi Yapiniz")
+
+        if secim == "Taş" or secim == "taş":
+            speak("Sizin Seciminiz='Tas'")
+            speak("Lütfen Bekleyin Bot Seciyor...")
+            speak("Botun secimi:"+bs)
+            if bs == "kagit":
+                speak("Sonuc:Bot Kazandi")
+            elif bs == "makas":
+                speak("Sonuc:Sen Kazandin Tebrikler!!!")
+            elif bs == "tas":
+                speak("Sonuc:Berabere Lütfen Sonra Tekrar Dene")
+        elif secim == "Kağıt" or secim == "kağıt":
+            speak("Sizin Seciminiz=='Kagit'")
+            speak("Lütfen Bekleyin Bot Seciyor...")
+            speak("Botun secimi:"+bs)
+            if bs == "kagit":
+                speak("Sonuc:Berabere Lütfen tekrar Dene")
+            elif bs == "makas":
+                speak("Sonuc:Ne Yazikki Kaybettin")
+            elif bs == "tas":
+                speak("Sonuc:Kazandin,Tebrikler!!")
+        elif secim == "Makas" or secim == "makas":
+            speak("Sizin Seciminiz=Makas")
+            speak("Lütfen Bekleyin Bot Seciyor")
+            speak("Botun secimi"+bs)
+            if bs == "kagit":
+                speak("Tebrikler,Kazandinn")
+            elif bs == "makas":
+                speak("Sonuc:BerabereLütfen Tekrar Dene")
+            elif bs == "tas":
+                speak("Sonuc Ne Yazikki Kaybettin Lüfen Birdaha Dene")
+        else:
+            speak("Hata Yanlis Karakter Girildi")
+
+
+def speak(string):
+    sa=gTTS(string,lang="tr")
+    rand=random.randint(1,100000)
+    file="audio-"+str(rand)+".mp3"
+    sa.save(file)
+    playsound(file)
+    os.remove(file)
+speak("Ne yapiyim")
+time.sleep(1)
+while 1:
+    voice = record()
+    print(voice)
+    response(voice)
